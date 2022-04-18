@@ -1,12 +1,16 @@
+from decouple import config
 import discord
 import cv2
 import pytesseract
 
 client = discord.Client()
 
-def somefunc(filename):
-    img = cv2.imread(filename)
-    pytesseract.image_to_string(img, lang= 'en')
+async def somefunc(filename, message):
+    try:
+        img = cv2.imread(filename)
+        print(pytesseract.image_to_string(img, lang= 'en'))
+    except FileNotFoundError:
+        await message.channel.send("Oops!")
     
 
 @client.event
@@ -36,10 +40,10 @@ async def on_message(message):
                 else:
                     content.append(filename + '\n')                       
                     await attachment.save(filename)
-                    somefunc(filename)
                     print(attachment.content_type, attachment.url, filename)
                     with open("text.txt","w") as f:
                         f.writelines(content)
+                    await somefunc(filename, message)
             # img = cv2.imread(url)
             # string = pytesseract.image_to_string(img, lang= 'en')
             # print(string)
@@ -48,4 +52,4 @@ async def on_message(message):
             await message.channel.send("Has no Image")
 
 
-client.run("OTY0NTMyNDI5NDI1NjM5NDc1.YlmA0w.9wJJTF9Aqt7QCXsEANisJHGG7pM")
+client.run(config('Token'))
