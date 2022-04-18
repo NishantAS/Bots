@@ -5,13 +5,14 @@ import pytesseract
 
 client = discord.Client()
 
-async def somefunc(filename, message):
-    try:
-        img = cv2.imread(filename)
-        print(pytesseract.image_to_string(img, lang= 'en'))
-    except FileNotFoundError:
-        await message.channel.send("Oops!")
-    
+def somefunc(filename):
+    img = cv2.imread(filename)
+    content = pytesseract.image_to_string(img)
+    contents = content.split()
+    for i in contents:
+        if i == 'BOOYAH!':
+            return True
+    return False
 
 @client.event
 async def on_ready():
@@ -34,7 +35,7 @@ async def on_message(message):
                     content = f.readlines()
 
                 for i in content:
-                    if i == filename:
+                    if i == filename + '\n':
                         await message.channel.send("Reuse")
                         break
                 else:
@@ -43,11 +44,11 @@ async def on_message(message):
                     print(attachment.content_type, attachment.url, filename)
                     with open("text.txt","w") as f:
                         f.writelines(content)
-                    await somefunc(filename, message)
-            # img = cv2.imread(url)
-            # string = pytesseract.image_to_string(img, lang= 'en')
-            # print(string)
-
+                    val = somefunc(filename)
+                    if val:
+                        await message.channel.send("Booyah You Scored Points")
+                    else:
+                        await message.channel.send("Hmm! I couldn't find BOOYAH in the Photo")
         except AttributeError:
             await message.channel.send("Has no Image")
 
